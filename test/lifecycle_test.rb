@@ -137,7 +137,7 @@ class LifecycleTest < ActiveSupport::TestCase
   def test_auto_observer
     topic_observer = TopicaAuditor.instance
     assert_nil TopicaAuditor.observed_class
-    assert_equal [Topic], TopicaAuditor.observed_classes.to_a
+    assert_equal [Topic, Reply, AroundTopic], TopicaAuditor.observed_classes.to_a
 
     topic = Topic.find(1)
     assert_equal topic.title, topic_observer.topic.title
@@ -167,8 +167,12 @@ class LifecycleTest < ActiveSupport::TestCase
     developer = SpecialDeveloper.find(1)
     assert_equal developer.name, multi_observer.record.name
 
+    assert_equal [Developer, SpecialDeveloper], DeveloperObserver.observed_classes
+
     klass = Class.new(Developer)
     assert_equal klass, multi_observer.last_inherited
+
+    assert_equal [Developer, SpecialDeveloper, klass], DeveloperObserver.observed_classes
 
     developer = klass.find(1)
     assert_equal developer.name, multi_observer.record.name
